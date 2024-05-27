@@ -1,0 +1,19 @@
+{
+  "name": "programadefidelidade",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "express-http-proxy": "^2.0.0",
+    "morgan": "^1.10.0",
+    "sqlite3": "^5.1.7"
+  },
+  "description": ""
+}
