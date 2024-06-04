@@ -1,6 +1,8 @@
 const express = require("express")
 const axios = require('axios');
 
+const axios = require('axios');
+
 const app = express()
 
 const bodyParser = require("body-parser")
@@ -22,6 +24,8 @@ db = new sqlite3.Database('./acesso.db', (err)=>{
     console.log('Conectado ao SQLite!')
 })
 
+db.run(`CREATE TABLE IF NOT EXISTS acesso
+        (id_estacionamento INT, cpf_usuario INT,tipo_acesso TEXT NOT NULL)`, 
 db.run(`CREATE TABLE IF NOT EXISTS acesso
         (id_estacionamento INT, cpf_usuario INT,tipo_acesso TEXT NOT NULL)`, 
         [], (err) => {

@@ -6,7 +6,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 
 
-let porta = 8070
+let porta = 8080
 app.listen(porta, ()=>{
     console.log('Servidor usuarios em execução na porta: ', porta)
 })

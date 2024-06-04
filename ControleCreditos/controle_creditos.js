@@ -31,6 +31,7 @@ db.run(`CREATE TABLE IF NOT EXISTS creditos
            }
       });
 
+//db.run(`CREATE TRIGGER `)
 
 app.post('/Creditos', (req, res, next)=>{
     db.run(`INSERT INTO creditos(qtd_creditos, cpf_usuario) VALUES(?,?)`,
@@ -57,7 +58,7 @@ app.get('/Creditos', (req, res, next)=>{
     })
 })
 
-app.get('/Creditos/:cpf', (req, res, next)=>{
+app.get('/Creditos/:cpf_usuario', (req, res, next)=>{
     db.get(`SELECT * FROM creditos WHERE cpf_usuario = ?`, req.params.cpf_usuario, (err, result)=>{
         if (err){
             console.log('Erro: ', err)
@@ -72,8 +73,10 @@ app.get('/Creditos/:cpf', (req, res, next)=>{
 })
 
 
-app.patch('/Creditos/:cpf', (req, res, next) => {
-    db.run(`UPDATE creditos SET qtd_creditos = COALESCE(?,qtd_creditos) WHERE cpf_usuario = ?`,
+app.patch('/Creditos/Incrementa/:cpf_usuario', (req, res, next) => {
+    let nova_quantidade_creditos = getQuantidadeCreditos(req.params.cpf_usuario)
+    console.log(nova_quantidade_creditos-1)
+    db.run(`UPDATE creditos SET qtd_creditos = qtd_creditos + COALESCE(?,qtd_creditos) WHERE cpf_usuario = ?`,
            [req.body.qtd_creditos, req.params.cpf_usuario], function(err) {
             if (err){
                 res.status(500).send('Erro ao alterar dados.');
@@ -86,8 +89,23 @@ app.patch('/Creditos/:cpf', (req, res, next) => {
     });
 });
 
+app.patch('/Creditos/Decrementa/:cpf_usuario', (req, res, next) => {
+    let nova_quantidade_creditos = getQuantidadeCreditos(req.params.cpf_usuario) - 1
+    console.log(nova_quantidade_creditos)
+    db.run(`UPDATE creditos SET qtd_creditos = ${nova_quantidade_creditos} WHERE cpf_usuario = ?`,
+           [req.body.qtd_creditos, req.params.cpf_usuario], function(err) {
+            if (err){
+                res.status(500).send('Erro ao alterar dados.');
+            } else if (this.changes == 0) {
+                console.log("Usuário não encontrado.");
+                res.status(404).send('Usuário não encontrado.');
+            } else {
+                res.status(200).send('Usuário alterado com sucesso!');
+            }
+    });
+});
 
-app.delete('/Creditos/:cpf', (req, res, next) => {
+app.delete('/Creditos/:cpf_usuario', (req, res, next) => {
     db.run(`DELETE FROM creditos WHERE cpf_usuario = ?`, req.params.cpf_usuario, function(err) {
       if (err){
          res.status(500).send('Erro ao remover usuário.');
@@ -99,3 +117,22 @@ app.delete('/Creditos/:cpf', (req, res, next) => {
       }
    });
 });
+
+const incrementa_creditos = (pontos) => {}
+
+const getQuantidadeCreditos = async (cpf_usuario) =>  {
+        await db.get(`SELECT * FROM creditos WHERE cpf_usuario = ?`, cpf_usuario, (err, result)=>{
+            if (err){
+                console.log('Erro: ', err)
+                res.status(500).send('Erro ao obter dados')
+            } else if (result == null){
+                console.log('Usuário não encontrado')
+                res.status(404).send('Usuário não encontrado')
+            } else {
+                console.log('Usuario encontrado')
+                let creditos =  (result.qtd_creditos)
+                console.log(creditos)
+                return creditos
+            }
+        })
+}
