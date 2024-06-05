@@ -52,7 +52,7 @@ async function getVagasEstacionamento(id_estacionamento) {
     }
 }
 
-app.post('/Entrar', async (req, res, next) => {
+app.post('/Acesso/Entrar', async (req, res, next) => {
     try {
         const id_estacionamento = await getIdestacionamento(req.body.ds_estacionamento);
         const vagas = await getVagasEstacionamento(id_estacionamento);
