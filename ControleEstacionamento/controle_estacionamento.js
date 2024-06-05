@@ -6,7 +6,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 
 
-let porta = 8070
+let porta = 8050
 app.listen(porta, ()=>{
     console.log('Servidor usuarios em execução na porta: ', porta)
 })
@@ -44,8 +44,8 @@ app.post('/Estacionamento', (req, res, next)=>{
 })
 
 
-app.get('/Estacionamentos', (req, res, next)=>{
-    db.all(`SELECT * FROM estacionamentos`, [], (err, result) => {
+app.get('/Estacionamento', (req, res, next)=>{
+    db.all(`SELECT * FROM estacionamento`, [], (err, result) => {
         if (err){
             console.log('Erro: ', err)
             res.status(500).send('Erro ao obter dados')
@@ -55,8 +55,8 @@ app.get('/Estacionamentos', (req, res, next)=>{
     })
 })
 
-app.get('/Estacionamentos/:id_estacionamento', (req, res, next)=>{
-    db.get(`SELECT * FROM estacionamentos WHERE id_estacionamento = ?`, req.params.id, (err, result)=>{
+app.get('/get_estacionamento_id/:id_estacionamento', (req, res, next)=>{
+    db.get(`SELECT * FROM estacionamento WHERE id_estacionamento = ?`, req.params.id_estacionamento, (err, result)=>{
         if (err){
             console.log('Erro: ', err)
             res.status(500).send('Erro ao obter dados')
@@ -69,8 +69,8 @@ app.get('/Estacionamentos/:id_estacionamento', (req, res, next)=>{
     })
 })
 
-app.get('/Estacionamentos/:ds_estacionamento', (req, res, next)=>{
-    db.get(`SELECT * FROM estacionamentos WHERE ds_estacionamento = ?`, req.params.ds_estacionamento, (err, result)=>{
+app.get('/get_estacionamento_ds/:ds_estacionamento', (req, res, next)=>{
+    db.get(`SELECT * FROM estacionamento WHERE ds_estacionamento = ?`, req.params.ds_estacionamento, (err, result)=>{
         if (err){
             console.log('Erro: ', err)
             res.status(500).send('Erro ao obter dados')
