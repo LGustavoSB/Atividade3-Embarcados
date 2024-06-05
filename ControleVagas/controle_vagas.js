@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 
+const axios = require('axios')
 
 let porta = 8090
 app.listen(porta, ()=>{
@@ -85,8 +86,9 @@ app.patch('/Vagas/:id_estacionamento', (req, res, next) => {
     });
 });
 
-app.patch('/Vagas/LiberaVaga/:id_estacionamento', (req, res, next) => {
-    db.run(`UPDATE vagas SET qtd_vagas = (qtd_vagas + 1) WHERE id_estacionamento = ?`,
+app.patch('/Vagas/LiberaVaga/:id_estacionamento', async (req, res, next) => {
+    let nova_qtd_vagas = await axios.get(`http://localhost:8090/Vagas/${req.params.id_estacionamento}`).then((res)=>{return res.data.qtd_vagas}) + 1
+    db.run(`UPDATE vagas SET qtd_vagas = ${nova_qtd_vagas} WHERE id_estacionamento = ?`,
            [req.params.id_estacionamento], function(err) {
             if (err){
                 res.status(500).send('Erro ao alterar dados.');
@@ -99,8 +101,9 @@ app.patch('/Vagas/LiberaVaga/:id_estacionamento', (req, res, next) => {
     });
 });
 
-app.patch('/Vagas/OcupaVaga/:id_estacionamento', (req, res, next) => {
-    db.run(`UPDATE vagas SET qtd_vagas = qtd_vagas - 1 WHERE id_estacionamento = ?`,
+app.patch('/Vagas/OcupaVaga/:id_estacionamento', async (req, res, next) => {
+    let nova_qtd_vagas = await axios.get(`http://localhost:8090/Vagas/${req.params.id_estacionamento}`).then((res)=>{return res.data.qtd_vagas}) - 1
+    db.run(`UPDATE vagas SET qtd_vagas = ${nova_qtd_vagas} WHERE id_estacionamento = ?`,
            [req.params.id_estacionamento], function(err) {
             if (err){
                 res.status(500).send('Erro ao alterar dados.');

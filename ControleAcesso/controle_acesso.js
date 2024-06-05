@@ -56,7 +56,6 @@ app.post('/Acesso/Entrar', async (req, res, next) => {
     try {
         const id_estacionamento = await getIdestacionamento(req.body.ds_estacionamento);
         const vagas = await getVagasEstacionamento(id_estacionamento);
-
         if (vagas > 0) {
             db.run(`INSERT INTO acesso(id_estacionamento, cpf_usuario, tipo_acesso) VALUES(?,?,?)`,
                 [id_estacionamento, req.body.cpf_usuario, 'entrar'], (err) => {
@@ -64,6 +63,8 @@ app.post('/Acesso/Entrar', async (req, res, next) => {
                         console.log("Error: ", err);
                         res.status(500).send('Erro ao entrar');
                     } else {
+                        axios.patch(`http://localhost:8090/Vagas/OcupaVaga/${id_estacionamento}`)
+                        axios.get(`http://localhost:8040/Cancela/Entrada`) 
                         res.status(200).send('Usuário entrou com sucesso');
                     }
                 });
@@ -77,7 +78,7 @@ app.post('/Acesso/Entrar', async (req, res, next) => {
 });
 
 async function getCreditosUsuario(cpf_usuario){
-    const porta_creditos = 8060
+    const porta_creditos = 8070
     try {
         const res = await axios.get(`http://localhost:${porta_creditos}/Creditos/${cpf_usuario}`);
         return res.data.qtd_creditos;
@@ -95,7 +96,7 @@ async function getCategoriaUsuario(cpf_usuario){
         throw new Error('Failed to get categoria');
     }
 }
-app.post('/Sair', async (req, res, next) => {
+app.post('/Acesso/Sair', async (req, res, next) => {
     try {
         const id_estacionamento = await getIdestacionamento(req.body.ds_estacionamento);
         const creditos = await getCreditosUsuario(req.body.cpf_usuario);
@@ -108,10 +109,12 @@ app.post('/Sair', async (req, res, next) => {
                         console.log("Error: ", err);
                         res.status(500).send('Erro ao sair');
                     } else {
-                        res.status(200).send('Usuário saiu com sucesso');
-                        if(categoria == 'estudante' || categoria == 'visitante'){
-                            axios.patch(`http://localhost:8060/Creditos/Decrementa/${req.body.cpf_usuario}`)
+                        if(categoria != 'professor' || categoria != 'taes'){
+                            axios.patch(`http://localhost:8070/Creditos/Decrementa/${req.body.cpf_usuario}`)
                         }
+                        axios.patch(`http://localhost:8090/Vagas/LiberaVaga/${id_estacionamento}`)
+                        axios.get(`http://localhost:8040/Cancela/Saida`)
+                        res.status(200).send('Usuário saiu com sucesso');
                     }
                 });
         } else {
@@ -122,3 +125,14 @@ app.post('/Sair', async (req, res, next) => {
         res.status(500).send('Erro ao processar a solicitação');
     }
 });
+
+app.get('/Acesso', (req, res, next)=>{
+    db.all(`SELECT * FROM acesso`, [], (err, result) => {
+        if (err){
+            console.log('Erro: ', err)
+            res.status(500).send('Erro ao obter dados')
+        } else {
+            res.status(200).json(result)
+        }
+    })
+})

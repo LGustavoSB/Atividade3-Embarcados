@@ -75,15 +75,16 @@ app.get('/Creditos/:cpf_usuario', (req, res, next)=>{
 })
 
 app.patch('/Creditos/Incrementa/:cpf_usuario', async (req, res, next) => {
-    let nova_quantidade_creditos = await axios.get(`http://localhost:8070/Creditos/${req.params.cpf_usuario}`).then((res)=>{return res.data.qtd_creditos}) + 1
-    db.run(`UPDATE creditos SET qtd_creditos = ? WHERE cpf_usuario = ?`,
-           [nova_quantidade_creditos, req.params.cpf_usuario], function(err) {
+    let nova_quantidade_creditos = await axios.get(`http://localhost:8070/Creditos/${req.params.cpf_usuario}`).then((res)=>{return parseInt(res.data.qtd_creditos)}) + parseInt(req.body.qtd_creditos)
+    db.run(`UPDATE creditos SET qtd_creditos = ${nova_quantidade_creditos} WHERE cpf_usuario = ?`,
+           [req.params.cpf_usuario], function(err) {
             if (err){
                 res.status(500).send('Erro ao alterar dados.');
             } else if (this.changes == 0) {
                 console.log("Usuário não encontrado.");
                 res.status(404).send('Usuário não encontrado.');
             } else {
+                console.log("Nova quantidade de creditos: ", nova_quantidade_creditos)
                 res.status(200).send('Usuário alterado com sucesso!');
             }
     });
@@ -99,6 +100,7 @@ app.patch('/Creditos/Decrementa/:cpf_usuario', async (req, res, next) => {
                 console.log("Usuário não encontrado.");
                 res.status(404).send('Usuário não encontrado.');
             } else {
+                console.log("Nova quantidade de creditos: ", nova_quantidade_creditos)
                 res.status(200).send('Usuário alterado com sucesso!');
             }
     });
