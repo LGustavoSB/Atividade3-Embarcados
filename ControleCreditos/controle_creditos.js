@@ -20,6 +20,8 @@ db = new sqlite3.Database('./creditos.db', (err)=>{
     console.log('Conectado ao SQLite!')
 })
 
+const axios = require('axios')
+
 db.run(`CREATE TABLE IF NOT EXISTS creditos
         (qtd_creditos INTEGER NOT NULL,
          cpf_usuario INTEGER PRIMARY KEY NOT NULL UNIQUE,
@@ -72,12 +74,10 @@ app.get('/Creditos/:cpf_usuario', (req, res, next)=>{
     })
 })
 
-
-app.patch('/Creditos/Incrementa/:cpf_usuario', (req, res, next) => {
-    let nova_quantidade_creditos = getQuantidadeCreditos(req.params.cpf_usuario)
-    console.log(nova_quantidade_creditos-1)
-    db.run(`UPDATE creditos SET qtd_creditos = qtd_creditos + COALESCE(?,qtd_creditos) WHERE cpf_usuario = ?`,
-           [req.body.qtd_creditos, req.params.cpf_usuario], function(err) {
+app.patch('/Creditos/Incrementa/:cpf_usuario', async (req, res, next) => {
+    let nova_quantidade_creditos = await axios.get(`http://localhost:8070/Creditos/${req.params.cpf_usuario}`).then((res)=>{return res.data.qtd_creditos}) + 1
+    db.run(`UPDATE creditos SET qtd_creditos = ? WHERE cpf_usuario = ?`,
+           [nova_quantidade_creditos, req.params.cpf_usuario], function(err) {
             if (err){
                 res.status(500).send('Erro ao alterar dados.');
             } else if (this.changes == 0) {
@@ -89,11 +89,10 @@ app.patch('/Creditos/Incrementa/:cpf_usuario', (req, res, next) => {
     });
 });
 
-app.patch('/Creditos/Decrementa/:cpf_usuario', (req, res, next) => {
-    let nova_quantidade_creditos = getQuantidadeCreditos(req.params.cpf_usuario) - 1
-    console.log(nova_quantidade_creditos)
-    db.run(`UPDATE creditos SET qtd_creditos = ${nova_quantidade_creditos} WHERE cpf_usuario = ?`,
-           [req.body.qtd_creditos, req.params.cpf_usuario], function(err) {
+app.patch('/Creditos/Decrementa/:cpf_usuario', async (req, res, next) => {
+    let nova_quantidade_creditos = await axios.get(`http://localhost:8070/Creditos/${req.params.cpf_usuario}`).then((res)=>{return res.data.qtd_creditos}) - 1
+    db.run(`UPDATE creditos SET qtd_creditos = ? WHERE cpf_usuario = ?`,
+           [nova_quantidade_creditos, req.params.cpf_usuario], function(err) {
             if (err){
                 res.status(500).send('Erro ao alterar dados.');
             } else if (this.changes == 0) {
@@ -117,22 +116,3 @@ app.delete('/Creditos/:cpf_usuario', (req, res, next) => {
       }
    });
 });
-
-const incrementa_creditos = (pontos) => {}
-
-const getQuantidadeCreditos = async (cpf_usuario) =>  {
-        await db.get(`SELECT * FROM creditos WHERE cpf_usuario = ?`, cpf_usuario, (err, result)=>{
-            if (err){
-                console.log('Erro: ', err)
-                res.status(500).send('Erro ao obter dados')
-            } else if (result == null){
-                console.log('Usuário não encontrado')
-                res.status(404).send('Usuário não encontrado')
-            } else {
-                console.log('Usuario encontrado')
-                let creditos =  (result.qtd_creditos)
-                console.log(creditos)
-                return creditos
-            }
-        })
-}

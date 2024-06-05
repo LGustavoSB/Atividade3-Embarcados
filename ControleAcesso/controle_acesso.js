@@ -75,3 +75,50 @@ app.post('/Acesso/Entrar', async (req, res, next) => {
         res.status(500).send('Erro ao processar a solicitação');
     }
 });
+
+async function getCreditosUsuario(cpf_usuario){
+    const porta_creditos = 8060
+    try {
+        const res = await axios.get(`http://localhost:${porta_creditos}/Creditos/${cpf_usuario}`);
+        return res.data.qtd_creditos;
+    } catch (error) {
+        throw new Error('Failed to get creditos');
+    }
+}
+
+async function getCategoriaUsuario(cpf_usuario){
+    const porta_usuario = 8080
+    try {
+        const res = await axios.get(`http://localhost:${porta_usuario}/Usuarios/${cpf_usuario}`)
+        return res.data.categoria
+    } catch (error) {
+        throw new Error('Failed to get categoria');
+    }
+}
+app.post('/Sair', async (req, res, next) => {
+    try {
+        const id_estacionamento = await getIdestacionamento(req.body.ds_estacionamento);
+        const creditos = await getCreditosUsuario(req.body.cpf_usuario);
+        const categoria = await getCategoriaUsuario(req.body.cpf_usuario)
+
+        if (creditos > 0 || categoria == 'professor' || categoria == 'taes') {
+            db.run(`INSERT INTO acesso(id_estacionamento, cpf_usuario, tipo_acesso) VALUES(?,?,?)`,
+                [id_estacionamento, req.body.cpf_usuario, 'saida'], (err) => {
+                    if (err) {
+                        console.log("Error: ", err);
+                        res.status(500).send('Erro ao sair');
+                    } else {
+                        res.status(200).send('Usuário saiu com sucesso');
+                        if(categoria == 'estudante' || categoria == 'visitante'){
+                            axios.patch(`http://localhost:8060/Creditos/Decrementa/${req.body.cpf_usuario}`)
+                        }
+                    }
+                });
+        } else {
+            res.status(400).send('Sem creditos, favor comprar');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro ao processar a solicitação');
+    }
+});
