@@ -21,7 +21,7 @@ db = new sqlite3.Database('./estacionamento.db', (err)=>{
 })
 
 db.run(`CREATE TABLE IF NOT EXISTS estacionamento
-        (id_estacionamento INT NOT NULL, ds_estacionamento TEXT NOT NULL)`, 
+        (id_estacionamento INTEGER PRIMARY KEY AUTOINCREMENT, ds_estacionamento TEXT NOT NULL)`, 
         [], (err) => {
            if (err) {
               console.log('ERRO: não foi possível criar tabela.');
@@ -29,10 +29,17 @@ db.run(`CREATE TABLE IF NOT EXISTS estacionamento
            }
       });
 
+// db.run(`DROP TRIGGER IF EXISTS increment_id_estacionamento`)
+
+// db.run(`CREATE TRIGGER increment_id_estacionamento
+//         AFTER INSERT ON estacionamento FOR EACH ROW
+//         BEGIN
+//             UPDATE estacionamento SET id_estacionamento = (SELECT MAX(id_estacionamento) + 1 FROM estacionemnto) WHERE rowid = NEW.rowid
+//         END`)
 
 app.post('/Estacionamento', (req, res, next)=>{
-    db.run(`INSERT INTO estacionamento(id_estacionamento, ds_estacionamento) VALUES(?,?)`,
-    [req.body.id_estacionamento, req.body.ds_estacionamento], (err) => {
+    db.run(`INSERT INTO estacionamento(ds_estacionamento) VALUES(?)`,
+    [req.body.ds_estacionamento], (err) => {
         if (err) {
             console.log("Error: ", err)
             res.status(500).send('Erro ao cadastrar estacionamento')
@@ -106,7 +113,7 @@ app.delete('/Estacionamento/:id_estacionamento', (req, res, next) => {
          console.log("Usuário não encontrado.");
          res.status(404).send('Usuário não encontrado.');
       } else {
-         res.status(200).send('Usuário removido com sucesso!');
+        res.status(200).send('Usuário removido com sucesso!');
       }
    });
 });

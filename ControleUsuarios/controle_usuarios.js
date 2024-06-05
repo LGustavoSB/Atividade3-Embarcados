@@ -21,8 +21,8 @@ db = new sqlite3.Database('./usuarios.db', (err)=>{
 })
 
 db.run(`CREATE TABLE IF NOT EXISTS usuarios
-        (nome TEXT NOT NULL, categoria TEXT NOT NULL, 
-         cpf INTEGER PRIMARY KEY NOT NULL UNIQUE)`, 
+        (nome TEXT NOT NULL, categoria TEXT NOT NULL CHECK(categoria in ('estudante', 'professor', 'TAE', 'visitante')), 
+         cpf INTEGER PRIMARY KEY NOT NULL UNIQUE )`, 
         [], (err) => {
            if (err) {
               console.log('ERRO: não foi possível criar tabela.');

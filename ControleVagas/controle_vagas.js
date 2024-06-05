@@ -23,7 +23,7 @@ db = new sqlite3.Database('./vagas.db', (err)=>{
 
 db.run(`CREATE TABLE IF NOT EXISTS vagas
         (qtd_vagas INTEGER NOT NULL, 
-         id_estacionamento INTEGER PRIMARY KEY NOT NULL UNIQUE)`, 
+         id_estacionamento INTEGER PRIMARY KEY NOT NULL UNIQUE)`,
         [], (err) => {
            if (err) {
               console.log('ERRO: não foi possível criar tabela.');
@@ -121,10 +121,10 @@ app.delete('/Vagas/:id_estacionamento', (req, res, next) => {
       if (err){
          res.status(500).send('Erro ao remover vaga.');
       } else if (this.changes == 0) {
-         console.log("Vaga não encontrado.");
-         res.status(404).send('Vaga não encontrado.');
+        console.log("Vaga não encontrado.");
+        res.status(404).send('Vaga não encontrado.');
       } else {
-         res.status(200).send('Vaga removido com sucesso!');
+        res.status(200).send('Vaga removido com sucesso!');
       }
    });
 });

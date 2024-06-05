@@ -102,14 +102,14 @@ app.post('/Acesso/Sair', async (req, res, next) => {
         const creditos = await getCreditosUsuario(req.body.cpf_usuario);
         const categoria = await getCategoriaUsuario(req.body.cpf_usuario)
 
-        if (creditos > 0 || categoria == 'professor' || categoria == 'taes') {
+        if (creditos > 0 || categoria == 'professor' || categoria == 'TAE') {
             db.run(`INSERT INTO acesso(id_estacionamento, cpf_usuario, tipo_acesso) VALUES(?,?,?)`,
                 [id_estacionamento, req.body.cpf_usuario, 'saida'], (err) => {
                     if (err) {
                         console.log("Error: ", err);
                         res.status(500).send('Erro ao sair');
                     } else {
-                        if(categoria != 'professor' || categoria != 'taes'){
+                        if(categoria != 'professor' || categoria != 'TAE'){
                             axios.patch(`http://localhost:8070/Creditos/Decrementa/${req.body.cpf_usuario}`)
                         }
                         axios.patch(`http://localhost:8090/Vagas/LiberaVaga/${id_estacionamento}`)
