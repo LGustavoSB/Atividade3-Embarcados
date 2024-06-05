@@ -8,8 +8,8 @@ app.use(logger('dev'));
 function selectProxyHost(req) {
     if (req.path.startsWith('/Acesso'))
         return 'http://localhost:8060/';
-    // else if (req.path.startsWith('/Creditos'))
-    //     return 'http://localhost:8070/';
+    else if (req.path.startsWith('/Creditos'))
+        return 'http://localhost:8070/';
     else if (req.path.startsWith('/Usuarios'))
         return 'http://localhost:8080/';
     else if (req.path.startsWith('/Vagas'))

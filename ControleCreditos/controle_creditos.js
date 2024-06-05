@@ -6,7 +6,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 
 
-let porta = 8060
+let porta = 8070
 app.listen(porta, ()=>{
     console.log('Servidor creditos em execução na porta: ', porta)
 })
@@ -40,8 +40,8 @@ app.post('/Creditos', (req, res, next)=>{
             console.log("Error: ", err)
             res.status(500).send('Erro ao cadastrar creditos')
         } else {
-            console.log('Usuario cadastrado com sucesso!')
-            res.status(200).send('Usuario cadastrado com sucesso')
+            console.log('Creditos cadastrados com sucesso!')
+            res.status(200).send('Creditos cadastrados com sucesso')
         }
     })
 })
